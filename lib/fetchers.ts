@@ -1,5 +1,5 @@
 import { unstable_cache } from "next/cache";
-import prisma from "@/lib/prisma";
+import prisma from "@/server/db";
 import { serialize } from "next-mdx-remote/serialize";
 import { replaceExamples, replaceTweets } from "@/lib/remark-plugins";
 
