@@ -3,8 +3,7 @@
 import prisma from "@/server/db";
 import { Post, Site } from "@prisma/client";
 import { revalidateTag } from "next/cache";
-import { withPostAuth, withSiteAuth } from "./auth";
-import { getSession } from "@/lib/auth";
+import { getSession, withPostAuth, withSiteAuth } from "@/server/auth";
 import {
   addDomainToVercel,
   // getApexDomain,
@@ -107,7 +106,7 @@ export const updateSite = withSiteAuth(
         if (site.customDomain && site.customDomain !== value) {
           response = await removeDomainFromVercelProject(site.customDomain);
 
-          /* Optional: remove domain from Vercel team 
+          /* Optional: remove domain from Vercel team
 
           // first, we need to check if the apex domain is being used by other sites
           const apexDomain = getApexDomain(`https://${site.customDomain}`);
@@ -137,7 +136,7 @@ export const updateSite = withSiteAuth(
               site.customDomain
             );
           }
-          
+
           */
         }
       } else if (key === "image" || key === "logo") {
