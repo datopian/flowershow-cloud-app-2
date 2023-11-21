@@ -73,9 +73,12 @@ export const siteRouter = createTRPCRouter({
         where: { id: input.id },
       });
     }),
-  getUserSites: protectedProcedure.query(({ ctx }) => {
-    return ctx.db.site.findMany({
-      where: { userId: ctx.session.user.id }
-    });
-  }),
+  getUserSites: protectedProcedure
+    .input(z.object({ limit: z.number().min(1).optional() }).optional())
+    .query(({ ctx, input }) => {
+      return ctx.db.site.findMany({
+        where: { userId: ctx.session.user.id },
+        take: input?.limit,
+      });
+    }),
 });
