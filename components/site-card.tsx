@@ -3,7 +3,7 @@ import { placeholderBlurhash, random } from "@/lib/utils";
 import { Site } from "@prisma/client";
 import { BarChart, ExternalLink } from "lucide-react";
 import Link from "next/link";
-impoort { env } from "@/env.mjs"
+import { env } from "@/env.mjs"
 
 export default function SiteCard({ data }: { data: Site }) {
     const url = `${data.subdomain}.${env.NEXT_PUBLIC_ROOT_DOMAIN}`;

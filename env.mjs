@@ -7,23 +7,9 @@ export const env = createEnv({
    * isn't built with invalid env vars.
    */
   server: {
-    // TODO is this still needed?
-    DATABASE_URL: z
-      .string()
-      .url()
-      .refine(
-        (str) => !str.includes("YOUR_MYSQL_URL_HERE"),
-        "You forgot to change the default URL",
-      ),
-    TURSO_AUTH_TOKEN: z.string(),
-    TURSO_DATABASE_URL: z.string().url(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
-    NEXTAUTH_SECRET:
-      process.env.NODE_ENV === "production"
-        ? z.string()
-        : z.string().optional(),
     NEXTAUTH_URL: z.preprocess(
       // This makes Vercel deployments not fail if you don't set NEXTAUTH_URL
       // Since NextAuth.js automatically uses the VERCEL_URL if present.
@@ -31,9 +17,26 @@ export const env = createEnv({
       // VERCEL_URL doesn't include `https` so it cant be validated as a URL
       process.env.VERCEL ? z.string() : z.string().url(),
     ),
+    POSTGRES_PRISMA_URL: z
+      .string()
+      .url(),
+    POSTGRES_URL_NON_POOLING: z
+      .string()
+      .url(),
+    // TURSO_AUTH_TOKEN: z.string(),
+    // TURSO_DATABASE_URL: z.string().url(),
+    NEXTAUTH_SECRET:
+      process.env.NODE_ENV === "production"
+        ? z.string()
+        : z.string().optional(),
     // Add ` on ID and SECRET if you want to make sure they're not empty
-    GITHUB_CLIENT_ID: z.string(),
-    GITHUB_CLIENT_SECRET: z.string(),
+    AUTH_GITHUB_ID: z.string(),
+    AUTH_GITHUB_SECRET: z.string(),
+    AUTH_BEARER_TOKEN: z.string(),
+    PROJECT_ID_VERCEL: z.string(),
+    TEAM_ID_VERCEL: z.string(),
+    VERCEL_URL: z.string().optional(),
+    PORT: z.string().optional(),
   },
 
   /**
@@ -42,7 +45,10 @@ export const env = createEnv({
    * `NEXT_PUBLIC_`.
    */
   client: {
-    NEXT_PUBLIC_RENDERER_URL: z.string(),
+    NEXT_PUBLIC_ROOT_DOMAIN: z.string(),
+    // Vercel system env var
+    // https://vercel.com/docs/projects/environment-variables/system-environment-variables
+    NEXT_PUBLIC_VERCEL_ENV: z.string().optional(),
   },
 
   /**
@@ -50,15 +56,20 @@ export const env = createEnv({
    * middlewares) or client-side so we need to destruct manually.
    */
   runtimeEnv: {
-    DATABASE_URL: process.env.DATABASE_URL,
-    TURSO_AUTH_TOKEN: process.env.TURSO_AUTH_TOKEN,
-    TURSO_DATABASE_URL: process.env.TURSO_DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
-    NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
-    GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
-    GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
-    NEXT_PUBLIC_RENDERER_URL: process.env.NEXT_PUBLIC_RENDERER_URL,
+    NEXT_PUBLIC_ROOT_DOMAIN: process.env.NEXT_PUBLIC_ROOT_DOMAIN,
+    NEXT_PUBLIC_VERCEL_ENV: process.env.NEXT_PUBLIC_VERCEL_ENV,
+    POSTGRES_PRISMA_URL: process.env.POSTGRES_PRISMA_URL,
+    POSTGRES_URL_NON_POOLING: process.env.POSTGRES_URL_NON_POOLING,
+    NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+    AUTH_GITHUB_ID: process.env.AUTH_GITHUB_ID,
+    AUTH_GITHUB_SECRET: process.env.AUTH_GITHUB_SECRET,
+    AUTH_BEARER_TOKEN: process.env.AUTH_BEARER_TOKEN,
+    PROJECT_ID_VERCEL: process.env.PROJECT_ID_VERCEL,
+    TEAM_ID_VERCEL: process.env.TEAM_ID_VERCEL,
+    VERCEL_URL: process.env.VERCEL_URL,
+    PORT: process.env.PORT,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
