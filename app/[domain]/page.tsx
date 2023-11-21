@@ -6,6 +6,7 @@ import { placeholderBlurhash, toDateString } from "@/lib/utils";
 import BlogCard from "@/components/blog-card";
 import { getPostsForSite, getSiteData } from "@/lib/fetchers";
 import Image from "next/image";
+import { env } from "@/env.mjs"
 
 export async function generateStaticParams() {
     const allSites = await prisma.site.findMany({
@@ -22,7 +23,7 @@ export async function generateStaticParams() {
     const allPaths = allSites
         .flatMap(({ subdomain, customDomain }) => [
             subdomain && {
-                domain: `${subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`,
+                domain: `${subdomain}.${env.NEXT_PUBLIC_ROOT_DOMAIN}`,
             },
             customDomain && {
                 domain: customDomain,

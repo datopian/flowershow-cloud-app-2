@@ -5,6 +5,7 @@ import BlogCard from "@/components/blog-card";
 import BlurImage from "@/components/blur-image";
 import MDX from "@/components/mdx";
 import { placeholderBlurhash, toDateString } from "@/lib/utils";
+import { env } from "@/env.mjs"
 
 export async function generateMetadata({
     params,
@@ -37,7 +38,7 @@ export async function generateMetadata({
             creator: "@vercel",
         },
         // Optional: Set canonical URL to custom domain if it exists
-        // ...(params.domain.endsWith(`.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`) &&
+        // ...(params.domain.endsWith(`.${env.NEXT_PUBLIC_ROOT_DOMAIN}`) &&
         //   siteData.customDomain && {
         //     alternates: {
         //       canonical: `https://${siteData.customDomain}/${params.slug}`,
@@ -68,7 +69,7 @@ export async function generateStaticParams() {
     const allPaths = allPosts
         .flatMap(({ site, slug }) => [
             site?.subdomain && {
-                domain: `${site.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`,
+                domain: `${site.subdomain}.${env.NEXT_PUBLIC_ROOT_DOMAIN}`,
                 slug,
             },
             site?.customDomain && {

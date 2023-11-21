@@ -14,6 +14,7 @@ import {
 import { put } from "@vercel/blob";
 import { customAlphabet } from "nanoid";
 import { getBlurDataURL } from "@/lib/utils";
+import { env } from "@/env.mjs"
 
 const nanoid = customAlphabet(
   "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
@@ -45,7 +46,7 @@ export const createSite = async (formData: FormData) => {
       },
     });
     await revalidateTag(
-      `${subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}-metadata`,
+      `${subdomain}.${env.NEXT_PUBLIC_ROOT_DOMAIN}-metadata`,
     );
     return response;
   } catch (error: any) {
@@ -140,7 +141,7 @@ export const updateSite = withSiteAuth(
           */
         }
       } else if (key === "image" || key === "logo") {
-        if (!process.env.BLOB_READ_WRITE_TOKEN) {
+        if (!env.BLOB_READ_WRITE_TOKEN) {
           return {
             error:
               "Missing BLOB_READ_WRITE_TOKEN token. Note: Vercel Blob is currently in beta – please fill out this form for access: https://tally.so/r/nPDMNd",
@@ -177,11 +178,11 @@ export const updateSite = withSiteAuth(
       }
       console.log(
         "Updated site data! Revalidating tags: ",
-        `${site.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}-metadata`,
+        `${site.subdomain}.${env.NEXT_PUBLIC_ROOT_DOMAIN}-metadata`,
         `${site.customDomain}-metadata`,
       );
       await revalidateTag(
-        `${site.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}-metadata`,
+        `${site.subdomain}.${env.NEXT_PUBLIC_ROOT_DOMAIN}-metadata`,
       );
       site.customDomain &&
         (await revalidateTag(`${site.customDomain}-metadata`));
@@ -209,7 +210,7 @@ export const deleteSite = withSiteAuth(async (_: FormData, site: Site) => {
       },
     });
     await revalidateTag(
-      `${site.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}-metadata`,
+      `${site.subdomain}.${env.NEXT_PUBLIC_ROOT_DOMAIN}-metadata`,
     );
     response.customDomain &&
       (await revalidateTag(`${site.customDomain}-metadata`));
@@ -248,7 +249,7 @@ export const createPost = withSiteAuth(async (_: FormData, site: Site) => {
   });
 
   await revalidateTag(
-    `${site.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}-posts`,
+    `${site.subdomain}.${env.NEXT_PUBLIC_ROOT_DOMAIN}-posts`,
   );
   site.customDomain && (await revalidateTag(`${site.customDomain}-posts`));
 
@@ -289,10 +290,10 @@ export const updatePost = async (data: Post) => {
     });
 
     await revalidateTag(
-      `${post.site?.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}-posts`,
+      `${post.site?.subdomain}.${env.NEXT_PUBLIC_ROOT_DOMAIN}-posts`,
     );
     await revalidateTag(
-      `${post.site?.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}-${post.slug}`,
+      `${post.site?.subdomain}.${env.NEXT_PUBLIC_ROOT_DOMAIN}-${post.slug}`,
     );
 
     // if the site has a custom domain, we need to revalidate those tags too
@@ -351,10 +352,10 @@ export const updatePostMetadata = withPostAuth(
       }
 
       await revalidateTag(
-        `${post.site?.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}-posts`,
+        `${post.site?.subdomain}.${env.NEXT_PUBLIC_ROOT_DOMAIN}-posts`,
       );
       await revalidateTag(
-        `${post.site?.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}-${post.slug}`,
+        `${post.site?.subdomain}.${env.NEXT_PUBLIC_ROOT_DOMAIN}-${post.slug}`,
       );
 
       // if the site has a custom domain, we need to revalidate those tags too

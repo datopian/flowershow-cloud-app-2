@@ -3,6 +3,7 @@ import { getSession } from "@/server/auth";
 import prisma from "@/server/db";
 import { notFound, redirect } from "next/navigation";
 import SiteSettingsNav from "./nav";
+import { env } from "@/env.mjs"
 
 export default async function SiteAnalyticsLayout({
     params,
@@ -25,7 +26,7 @@ export default async function SiteAnalyticsLayout({
         notFound();
     }
 
-    const url = `${data.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`;
+    const url = `${data.subdomain}.${env.NEXT_PUBLIC_ROOT_DOMAIN}`;
 
     return (
         <>
@@ -35,7 +36,7 @@ export default async function SiteAnalyticsLayout({
                 </h1>
                 <a
                     href={
-                        process.env.NEXT_PUBLIC_VERCEL_ENV
+                        env.NEXT_PUBLIC_VERCEL_ENV
                             ? `https://${url}`
                             : `http://${data.subdomain}.localhost:3000`
                     }

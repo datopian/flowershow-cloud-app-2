@@ -2,6 +2,7 @@ import { getSession } from "@/server/auth";
 import prisma from "@/server/db";
 import { notFound, redirect } from "next/navigation";
 import AnalyticsMockup from "@/components/analytics";
+import { env } from "@/env.mjs"
 
 export default async function SiteAnalytics({
     params,
@@ -21,7 +22,7 @@ export default async function SiteAnalytics({
         notFound();
     }
 
-    const url = `${data.subdomain}.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`;
+    const url = `${data.subdomain}.${env.NEXT_PUBLIC_ROOT_DOMAIN}`;
 
     return (
         <>
