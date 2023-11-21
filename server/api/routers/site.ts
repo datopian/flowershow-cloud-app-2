@@ -19,18 +19,18 @@ export const siteRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       // generate random name
-      let randomName;
+      let randomSudomain: string;
       do {
-        randomName = randomSlug();
+        randomSudomain = randomSlug();
       } while (
         await ctx.db.site.findFirst({
-          where: { name: randomName },
+          where: { subdomain: randomSudomain }
         })
       );
 
       return ctx.db.site.create({
         data: {
-          subdomain: randomName,
+          subdomain: randomSudomain,
           gh_repository: input.gh_repository,
           gh_scope: input.gh_scope,
           gh_branch: input.gh_branch,
