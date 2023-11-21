@@ -1,5 +1,4 @@
 import { PrismaClient } from "@prisma/client";
-import { env } from "@/env.mjs"
 
 declare global {
   var prisma: PrismaClient | undefined;
@@ -7,7 +6,7 @@ declare global {
 
 export const db = global.prisma || new PrismaClient();
 
-if (env.NODE_ENV === "development") global.prisma = db;
+if (process.env.NODE_ENV === "development") global.prisma = db;
 
 // TODO temp
 export default db;

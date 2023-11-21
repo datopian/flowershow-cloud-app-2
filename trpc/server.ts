@@ -6,7 +6,6 @@ import {
 import { headers } from "next/headers";
 
 import { type AppRouter } from "@/server/api/root";
-import { env } from "@/env.mjs"
 
 import { getUrl, transformer } from "./shared";
 
@@ -15,7 +14,7 @@ export const api = createTRPCProxyClient<AppRouter>({
   links: [
     loggerLink({
       enabled: (op) =>
-        env.NODE_ENV === "development" ||
+        process.env.NODE_ENV === "development" ||
         (op.direction === "down" && op.result instanceof Error),
     }),
     unstable_httpBatchStreamLink({

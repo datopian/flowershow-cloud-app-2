@@ -2,10 +2,9 @@ import { Configuration, OpenAIApi } from "openai-edge";
 import { OpenAIStream, StreamingTextResponse } from "ai";
 import { kv } from "@vercel/kv";
 import { Ratelimit } from "@upstash/ratelimit";
-import { env } from "@/env.mjs"
 
 const config = new Configuration({
-  apiKey: env.OPENAI_API_KEY,
+  // apiKey: env.OPENAI_API_KEY,
 });
 const openai = new OpenAIApi(config);
 
@@ -13,9 +12,9 @@ export const runtime = "edge";
 
 export async function POST(req: Request): Promise<Response> {
   if (
-    env.NODE_ENV != "development" &&
-    env.KV_REST_API_URL &&
-    env.KV_REST_API_TOKEN
+    process.env.NODE_ENV != "development" &&
+    process.env.KV_REST_API_URL &&
+    process.env.KV_REST_API_TOKEN
   ) {
     const ip = req.headers.get("x-forwarded-for");
     const ratelimit = new Ratelimit({
