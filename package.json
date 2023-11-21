@@ -24,7 +24,7 @@
     "ai": "^2.2.22",
     "clsx": "^2.0.0",
     "date-fns": "^2.30.0",
-    "faker-js": "^1.0.0",
+    "@faker-js/faker": "^8.2.0",
     "focus-trap-react": "^10.2.3",
     "framer-motion": "^10.16.4",
     "gray-matter": "^4.0.3",
