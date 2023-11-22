@@ -1,13 +1,7 @@
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import { GitHubRepository } from "@/types";
+
 
 export const userRouter = createTRPCRouter({
-  getOrg: protectedProcedure.query(({ ctx }) => {
-    return ctx.db.user.findUnique({
-      where: { id: ctx.session.user.id },
-      select: { org: true },
-    });
-  }),
   // getGitHubOrgs: protectedProcedure.query<string[]>(async ({ ctx }) => {
   //   // Query the database to get the user's GitHub access token
   //   const user = await ctx.db.user.findUnique({
@@ -48,7 +42,43 @@ export const userRouter = createTRPCRouter({
       return await fetchAuthUserRepositories(accessToken);
     },
   ),
+  // TODO TEMPORARY SOLUTION until we can fetch athenticated user's orgs
+  // https://github.com/orgs/community/discussions/74804
+  getGitHubOrgsToReposMap: protectedProcedure.query<{ [key: string]: GitHubRepository[] }>(
+    async ({ ctx }) => {
+      // Query the database to get the user's GitHub access token
+      const user = await ctx.db.user.findUnique({
+        where: { id: ctx.session.user.id },
+        include: { accounts: true },
+      });
+
+      const githubAccount = user?.accounts.find(
+        (account) => account.provider === "github",
+      );
+
+      const accessToken = githubAccount?.access_token;
+
+      if (!accessToken) {
+        throw new Error("GitHub access token not found");
+      }
+
+      const repos = await fetchAuthUserRepositories(accessToken);
+      console.log("REPOS", repos);
+
+      return repos.reduce((acc, repo) => {
+        const org = repo.full_name.split("/")[0] as string;
+        if (!acc[org]) {
+          acc[org] = [];
+        }
+        acc[org]!.push(repo);
+        return acc;
+      }
+        , {} as { [key: string]: GitHubRepository[] });
+    },
+  ),
 });
+
+
 
 
 // async function fetchAuthUserOrgs(accessToken: string) {
@@ -119,6 +149,13 @@ async function fetchAuthUserRepositories(accessToken: string) {
   } while (repos.length === perPage);
 
   return allRepos;
+}
+
+interface GitHubRepository {
+  id: number;
+  name: string;
+  full_name: string;
+  owner: string;
 }
 
 

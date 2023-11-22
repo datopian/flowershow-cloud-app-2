@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import LoadingDots from "@/components/icons/loading-dots";
 import { useModal } from "./provider";
 import va from "@vercel/analytics";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { api } from "@/trpc/react";
 import { GithubIcon } from "lucide-react";
 
@@ -22,9 +22,6 @@ export default function CreateSiteModal() {
         gh_branch: "main",
     });
 
-    const scopes = ["personal", "organization"];
-    const repos = ["repo1", "repo2", "repo3"];
-
     /* useEffect(() => {
 *     setData((prev) => ({
 *         ...prev,
@@ -34,6 +31,23 @@ export default function CreateSiteModal() {
 *             .replace(/[\W_]+/g, "-"),
 *     }));
 * }, [data.name]); */
+
+    const { data: orgsReposMap } = api.user.getGitHubOrgsToReposMap.useQuery();
+
+    useEffect(() => {
+        if (orgsReposMap) {
+            const scopes = Object.keys(orgsReposMap);
+            if (scopes.length > 0) {
+                setData(
+                    {
+                        ...data,
+                        gh_scope: scopes[0] || "",
+                    }
+                );
+            }
+        }
+    }, [orgsReposMap]);
+
 
     const createSiteMutation = api.site.create.useMutation({
         onSuccess: (res) => {
@@ -88,9 +102,15 @@ export default function CreateSiteModal() {
                         value={data.gh_scope}
                         required
                         placeholder="Select a GitHub account"
-                        onChange={(e) => setData({ ...data, gh_scope: e.target.value })}
+                        disabled={!orgsReposMap}
+                        onChange={(e) => setData({ ...data, gh_scope: e.target.value, gh_repository: "" })}
                     >
-                        {scopes.map((scope) => (
+                        {!orgsReposMap && (
+                            <option value="" disabled>
+                                Loading...
+                            </option>
+                        )}
+                        {orgsReposMap && Object.keys(orgsReposMap).map((scope) => (
                             <option key={scope} value={scope}>
                                 {scope}
                             </option>
@@ -114,11 +134,17 @@ export default function CreateSiteModal() {
                         value={data.gh_repository}
                         required
                         placeholder="Select a repository"
+                        disabled={!data.gh_scope}
                         onChange={(e) => setData({ ...data, gh_repository: e.target.value })}
                     >
-                        {repos.map((repo) => (
-                            <option key={repo} value={repo}>
-                                {repo}
+                        {!data.gh_repository && (
+                            <option value="" disabled>
+                                --- Select a repository ---
+                            </option>
+                        )}
+                        {data.gh_scope && orgsReposMap![data.gh_scope]!.map((repo) => (
+                            <option key={repo.id} value={repo.full_name}>
+                                {repo.name}
                             </option>
                         ))}
                     </select>
