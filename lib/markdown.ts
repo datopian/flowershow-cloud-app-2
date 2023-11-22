@@ -23,7 +23,7 @@ import { serialize } from "next-mdx-remote/serialize";
  * @format: used to indicate to next-mdx-remote which format to use (md or mdx)
  * @returns: { mdxSource: mdxSource, frontMatter: ...}
  */
-const parse = async function (source: string, format: "md" | "mdx", scope: object, permalinks: string[]) {
+const parse = async function (source: string, format: "md" | "mdx", scope: object, permalinks?: string[]) {
     const { content, data } = matter(source);
 
     const mdxSource = await serialize(

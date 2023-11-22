@@ -63,7 +63,6 @@ export const userRouter = createTRPCRouter({
       }
 
       const repos = await fetchAuthUserRepositories(accessToken);
-      console.log("REPOS", repos);
 
       return repos.reduce((acc, repo) => {
         const org = repo.full_name.split("/")[0] as string;
