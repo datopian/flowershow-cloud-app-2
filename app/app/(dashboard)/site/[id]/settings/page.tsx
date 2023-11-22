@@ -42,6 +42,17 @@ export default async function SiteSettingsIndex({
                 handleSubmit={updateSite}
             /> */}
 
+            {/* <Form
+                title="Repository"
+                description="Repository used to fetch content for your site."
+                inputAttrs={{
+                    name: "gh_repository",
+                    type: "select",
+                    defaultValue: data?.gh_repository!,
+                }}
+                handleSubmit={updateSite}
+            /> */}
+
             <Form
                 title="Branch"
                 description="Repository branch used to fetch content for your site."

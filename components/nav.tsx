@@ -3,13 +3,11 @@
 import Link from "next/link";
 import {
     ArrowLeft,
-    BarChart3,
     Edit3,
     Globe,
     LayoutDashboard,
     Megaphone,
     Menu,
-    Newspaper,
     Settings,
     FileCode,
 } from "lucide-react";
@@ -57,18 +55,12 @@ export default function Nav({ children }: { children: ReactNode }) {
                     href: "/sites",
                     icon: <ArrowLeft width={18} />,
                 },
-                {
-                    name: "Posts",
-                    href: `/site/${id}`,
-                    isActive: segments.length === 2,
-                    icon: <Newspaper width={18} />,
-                },
-                {
-                    name: "Analytics",
-                    href: `/site/${id}/analytics`,
-                    isActive: segments.includes("analytics"),
-                    icon: <BarChart3 width={18} />,
-                },
+                /* {
+*     name: "Analytics",
+*     href: `/site/${id}/analytics`,
+*     isActive: segments.includes("analytics"),
+*     icon: <BarChart3 width={18} />,
+* }, */
                 {
                     name: "Settings",
                     href: `/site/${id}/settings`,
