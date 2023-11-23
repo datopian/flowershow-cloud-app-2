@@ -38,7 +38,7 @@ export default async function SiteHomePage({
 
     const mdxString = await api.site.getPageData.query({
         domain,
-        slug: "index.md"
+        slug: ""
     })
 
     if (!mdxString) {

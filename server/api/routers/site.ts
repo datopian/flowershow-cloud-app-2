@@ -96,7 +96,7 @@ export const siteRouter = createTRPCRouter({
       });
     }),
   getPageData: publicProcedure
-    .input(z.object({ domain: z.string().min(1), slug: z.string().min(1) }))
+    .input(z.object({ domain: z.string().min(1), slug: z.string() }))
     .query(async ({ ctx, input }) => {
 
       const subdomain = input.domain.endsWith(`.${env.NEXT_PUBLIC_ROOT_DOMAIN}`)
@@ -118,43 +118,55 @@ export const siteRouter = createTRPCRouter({
           if (!site) return null;
 
           const { gh_repository, gh_branch } = site;
-          let mdxSource;
+          let content: string | null = null;
 
-          try {
-            const response = await fetch(
-              // List repositories for the authenticated user
-              // https://docs.github.com/en/free-pro-team@latest/rest/repos/repos?apiVersion=2022-11-28#list-repositories-for-the-authenticated-user
-              `https://api.github.com/repos/${gh_repository}/contents/${input.slug}?ref=${gh_branch}`,
-              {
-                headers: {
-                  'X-GitHub-Api-Version': '2022-11-28',
-                  'Accept': 'application/vnd.github+json'
-                },
+          // if slug is empty, fetch index.md or README.md
+          if (input.slug === "") {
+            try {
+              // fetch index.md
+              content = await fetchGitHubFile({
+                gh_repository,
+                gh_branch,
+                slug: "index.md"
+              });
+            } catch (error) {
+              try {
+                // fetch README.md
+                content = await fetchGitHubFile({
+                  gh_repository,
+                  gh_branch,
+                  slug: "README.md"
+                });
+              } catch (error) {
+                throw new Error(
+                  `Could not read ${gh_repository}/index.md or ${gh_repository}/README.md from GitHub: ${error}`,
+                );
               }
-            );
-
-            if (!response.ok) {
-              throw new Error(
-                `Failed to fetch GitHub file: ${response.statusText}`,
-              );
             }
-
-            const { content = null } = (await response.json()) as {
-              content?: string;
-            };
-
-            console.log({ content });
-
-            // TODO
-            mdxSource = Buffer.from(content!, "base64").toString();
-
-          } catch (error) {
-            throw new Error(
-              `Could not read ${gh_repository}/${input.slug} from GitHub: ${error}`,
-            );
+          } else {
+            // fetch [slug].md or [slug]/index.md
+            try {
+              content = await fetchGitHubFile({
+                gh_repository,
+                gh_branch,
+                slug: `${input.slug}.md`
+              });
+            } catch (error) {
+              try {
+                content = await fetchGitHubFile({
+                  gh_repository,
+                  gh_branch,
+                  slug: `${input.slug}/index.md`
+                });
+              } catch (error) {
+                throw new Error(
+                  `Could not read ${gh_repository}/${input.slug}.md or ${gh_repository}/${input.slug}/index.md from GitHub: ${error}`,
+                );
+              }
+            }
           }
 
-          return mdxSource
+          return content;
         },
         [`${input.domain}-${input.slug}`],
         {
@@ -164,3 +176,46 @@ export const siteRouter = createTRPCRouter({
       )();
     }),
 });
+
+async function fetchGitHubFile({
+  gh_repository,
+  gh_branch,
+  slug
+}: {
+  gh_repository: string,
+  gh_branch: string,
+  slug: string
+}) {
+  let content: string | null = null;
+
+  try {
+    const response = await fetch(
+      `https://api.github.com/repos/${gh_repository}/contents/${slug}?ref=${gh_branch}`,
+      {
+        headers: {
+          'X-GitHub-Api-Version': '2022-11-28',
+          'Accept': 'application/vnd.github+json'
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch GitHub file: ${response.statusText}`,
+      );
+    }
+
+    const responseJson = (await response.json()) as {
+      content: string;
+    };
+
+    content = Buffer.from(responseJson.content, "base64").toString();
+
+  } catch (error) {
+    throw new Error(
+      `Could not read ${gh_repository}/${slug} from GitHub: ${error}`,
+    );
+  }
+
+  return content;
+}

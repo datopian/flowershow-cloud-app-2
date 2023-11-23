@@ -88,7 +88,7 @@ export default async function SitePostPage({
 
     const mdxString = await api.site.getPageData.query({
         domain,
-        slug: slug + ".md"
+        slug
     })
 
     if (!mdxString) {
