@@ -26,7 +26,7 @@ export default async function middleware(req: NextRequest) {
   // special case for Vercel preview deployment URLs
   if (
     hostname.includes("---") &&
-    hostname.endsWith(`.${env.NEXT_PUBLIC_VERCEL_DEPLOYMENT_SUFFIX}`)
+    hostname.endsWith(`.${process.env.NEXT_PUBLIC_VERCEL_DEPLOYMENT_SUFFIX}`) // TODO what is this
   ) {
     hostname = `${hostname.split("---")[0]}.${env.NEXT_PUBLIC_ROOT_DOMAIN
       }`;

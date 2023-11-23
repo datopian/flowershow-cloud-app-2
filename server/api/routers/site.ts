@@ -8,6 +8,7 @@ import {
   publicProcedure
 } from "@/server/api/trpc";
 import { env } from "@/env.mjs";
+import { filePathsToPermalinks } from "@/lib/file-paths-to-permalinks";
 
 /* eslint-disable */
 export const siteRouter = createTRPCRouter({
@@ -79,15 +80,15 @@ export const siteRouter = createTRPCRouter({
       });
     }),
   // PUBLIC
-  getAllDomains: publicProcedure
-    .query(({ ctx }) => {
-      return ctx.db.site.findMany({
-        select: {
-          subdomain: true,
-          customDomain: true,
-        },
-      });
-    }),
+  // getAllDomains: publicProcedure
+  //   .query(({ ctx }) => {
+  //     return ctx.db.site.findMany({
+  //       select: {
+  //         subdomain: true,
+  //         customDomain: true,
+  //       },
+  //     });
+  //   }),
   getById: publicProcedure
     .input(z.object({ id: z.string().min(1) }))
     .query(async ({ ctx, input }) => {
@@ -95,7 +96,62 @@ export const siteRouter = createTRPCRouter({
         where: { id: input.id },
       });
     }),
-  getPageData: publicProcedure
+  getByDomain: publicProcedure
+    .input(z.object({ domain: z.string().min(1) }))
+    .query(async ({ ctx, input }) => {
+      const subdomain = input.domain.endsWith(`.${env.NEXT_PUBLIC_ROOT_DOMAIN}`)
+        ? input.domain.replace(`.${env.NEXT_PUBLIC_ROOT_DOMAIN}`, "")
+        : null;
+
+      return ctx.db.site.findFirst({
+        where: {
+          OR: [
+            { subdomain: subdomain ?? undefined },
+            { customDomain: input.domain }
+          ]
+        }
+      });
+    }),
+  getSitePermalinks: publicProcedure
+    .input(z.object({ domain: z.string().min(1) }))
+    .query(async ({ ctx, input }) => {
+      const subdomain = input.domain.endsWith(`.${env.NEXT_PUBLIC_ROOT_DOMAIN}`)
+        ? input.domain.replace(`.${env.NEXT_PUBLIC_ROOT_DOMAIN}`, "")
+        : null;
+
+      return await unstable_cache(
+        async () => {
+          // find site by subdomain or custom domain
+          const site = await ctx.db.site.findFirst({
+            where: {
+              OR: [
+                { subdomain: subdomain ?? undefined },
+                { customDomain: input.domain }
+              ]
+            }
+          });
+
+          if (!site) return null;
+
+          const { gh_scope, gh_repository, gh_branch } = site;
+          const filePaths = await fetchGitHubProjectFilePaths({ gh_repository, gh_branch });
+          // TODO: use custom domain if available ?
+          const ghPagesDomain = `${gh_scope}.github.io/${gh_repository}`;
+          const permalinks = filePathsToPermalinks({
+            filePaths,
+            ghPagesDomain,
+          });
+
+          return permalinks;
+        },
+        [`${input.domain}`],
+        {
+          revalidate: 1, // 15 minutes
+          tags: [`${input.domain}`],
+        },
+      )();
+    }),
+  getPageContent: publicProcedure
     .input(z.object({ domain: z.string().min(1), slug: z.string() }))
     .query(async ({ ctx, input }) => {
 
@@ -170,12 +226,58 @@ export const siteRouter = createTRPCRouter({
         },
         [`${input.domain}-${input.slug}`],
         {
-          revalidate: 1, // 15 minutes
+          revalidate: 900, // 15 minutes
           tags: [`${input.domain}-${input.slug}`],
         },
       )();
     }),
 });
+
+async function fetchGitHubProjectFilePaths({
+  gh_repository,
+  gh_branch,
+}: {
+  gh_repository: string,
+  gh_branch: string,
+}) {
+  let paths: string[] = [];
+
+  try {
+    const response = await fetch(
+      `https://api.github.com/repos/${gh_repository}/git/trees/${gh_branch}?recursive=1`,
+      {
+        headers: {
+          'X-GitHub-Api-Version': '2022-11-28',
+          'Accept': 'application/vnd.github+json'
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch GitHub project paths: ${response.statusText}`,
+      );
+    }
+
+    const responseJson = (await response.json()) as {
+      tree: {
+        path: string;
+        type: "blob" | "tree";
+      }[];
+    };
+
+    paths = responseJson.tree
+      .filter((file) => file.type === "blob") // only include blobs (files) not trees (folders)
+      .map((tree) => tree.path);
+
+  } catch (error) {
+    throw new Error(
+      `Failed to fetch GitHub project paths: ${error}`,
+    );
+  }
+
+  return paths;
+}
 
 async function fetchGitHubFile({
   gh_repository,

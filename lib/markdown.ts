@@ -11,7 +11,7 @@ import remarkToc from "remark-toc";
 // import remarkWikiLink, { getPermalinks } from "@portaljs/remark-wiki-link";
 import { remarkWikiLink } from "@portaljs/remark-wiki-link";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
-import rehypeKatex from "rehype-katex";
+// import rehypeKatex from "rehype-katex";
 import rehypeSlug from "rehype-slug";
 import rehypePrismPlus from "rehype-prism-plus";
 import { serialize } from "next-mdx-remote/serialize";
@@ -54,7 +54,7 @@ const parse = async function (source: string, format: "md" | "mdx", scope: objec
                         rehypeAutolinkHeadings,
                         {
                             properties: { className: "heading-link" },
-                            test(element) {
+                            test(element: any) {
                                 return (
                                     ["h2", "h3", "h4", "h5", "h6"].includes(element.tagName) &&
                                     element.properties?.id !== "table-of-contents" &&
@@ -83,7 +83,7 @@ const parse = async function (source: string, format: "md" | "mdx", scope: objec
                             },
                         },
                     ],
-                    [rehypeKatex, { output: "htmlAndMathml" }],
+                    // [rehypeKatex, { output: "htmlAndMathml" }],
                     [rehypePrismPlus, { ignoreMissing: true }],
                 ],
                 format,

@@ -17,7 +17,6 @@ import {
     useSelectedLayoutSegments,
 } from "next/navigation";
 import { ReactNode, useEffect, useMemo, useState } from "react";
-import { getSiteFromPostId } from "@/lib/actions";
 import Image from "next/image";
 
 const externalLinks = [
@@ -37,15 +36,15 @@ export default function Nav({ children }: { children: ReactNode }) {
     const segments = useSelectedLayoutSegments();
     const { id } = useParams() as { id?: string };
 
-    const [siteId, setSiteId] = useState<string | null>();
+    /* const [siteId, setSiteId] = useState<string | null>(); */
 
-    useEffect(() => {
-        if (segments[0] === "post" && id) {
-            getSiteFromPostId(id).then((id) => {
-                setSiteId(id);
-            });
-        }
-    }, [segments, id]);
+    /* useEffect(() => {
+*     if (segments[0] === "post" && id) {
+*         getSiteFromPostId(id).then((id) => {
+*             setSiteId(id);
+*         });
+*     }
+* }, [segments, id]); */
 
     const tabs = useMemo(() => {
         if (segments[0] === "site" && id) {
@@ -68,27 +67,28 @@ export default function Nav({ children }: { children: ReactNode }) {
                     icon: <Settings width={18} />,
                 },
             ];
-        } else if (segments[0] === "post" && id) {
-            return [
-                {
-                    name: "Back to All Posts",
-                    href: siteId ? `/site/${siteId}` : "/sites",
-                    icon: <ArrowLeft width={18} />,
-                },
-                {
-                    name: "Editor",
-                    href: `/post/${id}`,
-                    isActive: segments.length === 2,
-                    icon: <Edit3 width={18} />,
-                },
-                {
-                    name: "Settings",
-                    href: `/post/${id}/settings`,
-                    isActive: segments.includes("settings"),
-                    icon: <Settings width={18} />,
-                },
-            ];
         }
+        /* else if (segments[0] === "post" && id) {
+*     return [
+*         {
+*             name: "Back to All Posts",
+*             href: siteId ? `/site/${siteId}` : "/sites",
+*             icon: <ArrowLeft width={18} />,
+*         },
+*         {
+*             name: "Editor",
+*             href: `/post/${id}`,
+*             isActive: segments.length === 2,
+*             icon: <Edit3 width={18} />,
+*         },
+*         {
+*             name: "Settings",
+*             href: `/post/${id}/settings`,
+*             isActive: segments.includes("settings"),
+*             icon: <Settings width={18} />,
+*         },
+*     ];
+* } */
         return [
             {
                 name: "Overview",
@@ -109,7 +109,8 @@ export default function Nav({ children }: { children: ReactNode }) {
                 icon: <Settings width={18} />,
             },
         ];
-    }, [segments, id, siteId]);
+        /* }, [segments, id, siteId]); */
+    }, [segments, id]);
 
     const [showSidebar, setShowSidebar] = useState(false);
 

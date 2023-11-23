@@ -34,6 +34,7 @@ export const env = createEnv({
     TEAM_ID_VERCEL: z.string(),
     VERCEL_URL: z.string().optional(),
     PORT: z.string().optional(),
+    REDIRECT_TO_CUSTOM_DOMAIN_IF_EXISTS: z.string().default("true")
   },
 
   /**
@@ -66,6 +67,7 @@ export const env = createEnv({
     TEAM_ID_VERCEL: process.env.TEAM_ID_VERCEL,
     VERCEL_URL: process.env.VERCEL_URL,
     PORT: process.env.PORT,
+    REDIRECT_TO_CUSTOM_DOMAIN_IF_EXISTS: process.env.REDIRECT_TO_CUSTOM_DOMAIN_IF_EXISTS
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

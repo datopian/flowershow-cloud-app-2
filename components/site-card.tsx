@@ -16,9 +16,9 @@ export default function SiteCard({ data }: { data: Site }) {
                     <h3 className="my-0 truncate font-cal text-xl font-bold tracking-wide dark:text-white">
                         {data.subdomain}
                     </h3>
-                    <p className="mt-2 line-clamp-1 text-sm font-normal leading-snug text-stone-500 dark:text-stone-400">
+                    {/* <p className="mt-2 line-clamp-1 text-sm font-normal leading-snug text-stone-500 dark:text-stone-400">
                         {data.description}
-                    </p>
+                    </p> */}
                 </div>
                 {/* <BlurImage
                     alt={data.subdomain ?? "Card thumbnail"}

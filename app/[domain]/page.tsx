@@ -36,20 +36,21 @@ export default async function SiteHomePage({
 }) {
     const domain = decodeURIComponent(params.domain);
 
-    const mdxString = await api.site.getPageData.query({
+    const mdString = await api.site.getPageContent.query({
         domain,
         slug: ""
     })
 
-    if (!mdxString) {
+    if (!mdString) {
         notFound();
     }
 
-    const { mdxSource, frontMatter } = await parse(mdxString, "mdx", {});
+    const { mdxSource, frontMatter } = await parse(mdString, "mdx", {});
 
     return (
         <>
-            <MdxPage source={mdxSource} frontMatter={frontMatter} />
+            <MdxPage source={mdxSource} />
+            {/* <MdxPage source={mdxSource} frontMatter={frontMatter} /> */}
         </>
     );
 }

@@ -15,7 +15,7 @@ export default async function SiteSettingsAppearance({
 
     return (
         <div className="flex flex-col space-y-6">
-            <Form
+            {/* <Form
                 title="Thumbnail image"
                 description="The thumbnail image for your site. Accepted formats: .png, .jpg, .jpeg"
                 helpText="Max file size 50MB. Recommended size 1200x630."
@@ -60,7 +60,7 @@ export default async function SiteSettingsAppearance({
                     maxLength: 240,
                 }}
                 handleSubmit={updateSite}
-            />
+            /> */}
         </div>
     );
 }

@@ -86,20 +86,23 @@ export default async function SitePostPage({
     const domain = decodeURIComponent(params.domain);
     const slug = decodeURIComponent(params.slug);
 
-    const mdxString = await api.site.getPageData.query({
+    const mdString = await api.site.getPageContent.query({
         domain,
         slug
     })
 
-    if (!mdxString) {
+    if (!mdString) {
         notFound();
     }
 
-    const { mdxSource, frontMatter } = await parse(mdxString, "mdx", {});
+    const permalinks = await api.site.getSitePermalinks.query({ domain }) ?? [];
+
+    const { mdxSource, frontMatter } = await parse(mdString, "mdx", {}, permalinks);
 
     return (
         <>
-            <MdxPage source={mdxSource} frontMatter={frontMatter} />
+            {/* <MdxPage source={mdxSource} frontMatter={frontMatter} /> */}
+            <MdxPage source={mdxSource} />
         </>
     );
 }
